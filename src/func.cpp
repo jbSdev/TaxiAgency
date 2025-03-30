@@ -12,7 +12,7 @@ vsp <Driver> findDrivers(const char startingRegion, const char endingRegion, Reg
 {
     vsp <Driver> availableDrivers;
     for (auto &ag : registry.getAgencies())
-        for (auto &dr : ag -> getDrivers())
+        for (const auto &dr : ag -> getDrivers())
             if (dr -> operatesInRegion(startingRegion)
              && dr -> operatesInRegion(endingRegion)
              && !isIn(availableDrivers, dr))

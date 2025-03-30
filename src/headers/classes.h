@@ -56,12 +56,12 @@ public:
     void addAgency(weak_ptr<Agency> agency);
 
     // getters
-    void getInfo();
-    void listRegions();
-    void listAgencies();
-    string getName();
+    void getInfo() const;
+    void listRegions() const;
+    void listAgencies() const;
+    string getName() const;
 
-    bool operatesInRegion(const char region);
+    bool operatesInRegion(const char region) const;
 };
 
 class Customer

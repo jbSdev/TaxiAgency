@@ -1,5 +1,9 @@
 # Compiler
-CXX = g++
+ifeq ($(shell uname), Darwin)
+	CXX = clang++
+else
+	CXX= g++
+endif
 
 # Compiler flags
 CXXFLAGS = -Wall -g -std=c++17
@@ -34,6 +38,6 @@ $(TARGET): $(OBJECTS)
 
 # Clean the trash
 clean:
-	$(RM) -r $(BUILDDIR)
+	$(RM) -r $(OBJECTS)
 
 .PHONY: all clean
