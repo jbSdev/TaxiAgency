@@ -2,38 +2,41 @@
 #define CLASSES_H
 
 #include "includes.h"
-#include <memory>
 
 class Agency;
 class Driver;
 class Customer;
 class Trip;
+class Registry;
 
-class Agency : enable_shared_from_this<Agency>
+class Agency : public enable_shared_from_this <Agency>
 {
 private:
-    char                        id;
-    vector <shared_ptr<Driver>> drivers;
-    vector <shared_ptr<Trip>>   trips;
-    vector <char>               regions;
+    char            id;
+    vsp <Driver>    drivers;
+    vsp <Trip>      trips;
+    vector <char>   regions;
 
 public:
-    Agency(char id) : id(id) {};
+    Agency(char id);
 
+    // setters
     void addDriver(shared_ptr<Driver> driver);
 
+    // getters
     char getId();
+    vsp <Driver> getDrivers();
 };
 
 class Driver
 {
 private:
-    string                      name;        // Name and surname
-    unsigned int                license;
-    float                       revenue;
-    vector <char>               regions;
-    vector <shared_ptr<Trip>>   history;
-    vector <weak_ptr<Agency>>   agencies;
+    string          name;        // Name and surname
+    unsigned int    license;
+    float           revenue;
+    vector <char>   regions;
+    vsp <Trip>      history;
+    vwp <Agency>    agencies;
 
 public:
     Driver(string name, unsigned int license);
@@ -56,20 +59,25 @@ public:
     void getInfo();
     void listRegions();
     void listAgencies();
+    string getName();
+
+    bool operatesInRegion(const char region);
 };
 
 class Customer
 {
 private:
-    unsigned short              id;
-    vector <shared_ptr <Trip>>  history;
-    unsigned int                total_distance;
-    float                       total_expenses;
+    unsigned short  id;
+    vsp <Trip>      history;
+    unsigned int    total_distance;
+    float           total_expenses;
 
     static unsigned short       nextId;
 
 public:
     Customer();
+
+    void requestRide(const char startingRegion, const char endingRegion);
 };
 
 
@@ -92,6 +100,15 @@ public:
     // Calculates the price on its own, using regions * agency price
 
     ~Trip();
+};
+
+class Registry
+{
+private:
+    vsp <Agency> agencyList;
+public:
+    void addAgency(shared_ptr <Agency> agency);
+    vsp <Agency> getAgencies();
 };
 
 #endif

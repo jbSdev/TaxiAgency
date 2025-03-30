@@ -1,10 +1,17 @@
 #include "headers/classes.h"
-#include <memory>
+
+Agency::Agency(char id) : id(id) {};
 
 char Agency::getId() { return id; }
 
 void Agency::addDriver(shared_ptr<Driver> driver)
 {
     drivers.push_back(driver);
-    driver -> addAgency(shared_from_this());
+    if (auto self = shared_from_this())
+        driver -> addAgency(self);
+}
+
+vsp <Driver> Agency::getDrivers()
+{
+    return drivers;
 }
