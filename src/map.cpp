@@ -1,3 +1,4 @@
+#include "headers/includes.h"
 #include "headers/main.h"
 
 void createMap(Graph& map)
@@ -23,7 +24,6 @@ void createMap(Graph& map)
      *  U--1--V--2--W--1--X--2--Y
      *
      */
-
     map['A'] = { {'B', 1}, {'F', 2} };
     map['B'] = { {'A', 1}, {'C', 2}, {'G', 4} };
     map['C'] = { {'B', 2}, {'D', 1}, {'H', 3} };
@@ -60,12 +60,68 @@ Neighbors getNeighbors(const Graph& map, const Region& region)
         return Neighbors();
 }
 
-Graph createSubmap(const Graph& map, shared_ptr<Driver> driver)
+map<Region, int> dijkstra(const Graph &graph, const Region &start, map<Region, Region>& previous)
 {
-    Graph submap;
-    for (const auto& entry : map)
-        if (driver -> operatesInRegion(entry.first))
-            submap.insert(entry);
+    map<Region, int> distances;
+    for (const auto& region : graph)
+        distances[region.first] = INT_MAX;
+    distances[start] = 0;
 
-    return submap;
+    using Entry = pair<int, Region>;
+    priority_queue<Entry, vector<Entry>, greater<Entry>> queue;
+    queue.push({0, start});
+
+    while (!queue.empty())
+    {
+        int current_distance  = queue.top().first;
+        Region current_region = queue.top().second;
+        queue.pop();
+
+        if (current_distance > distances[current_region])
+            continue;
+
+        auto it = graph.find(current_region);
+        if (it == graph.end())
+            continue;
+
+        // for (const auto& neighbor : graph.at(current_region)) 
+        for (const auto& neighbor : it -> second)
+        {
+            int distance = current_distance + neighbor.second;
+            if (distance < distances[neighbor.first])
+            {
+                distances[neighbor.first] = distance;
+                previous [neighbor.first] = current_region;
+                queue.push({distance, neighbor.first});
+            }
+        }
+    }
+    return distances;
+}
+
+list<pathSegment> getShortestPath(const map<Region, Region>& previous, const Graph& graph, const Region& start, const Region& end)
+{
+    list<pathSegment> path;
+    if (previous.find(end) == previous.end())
+        return path;        // path not found
+
+    Region cur = end;
+    while (cur != start)
+    {
+        Region prv = previous.at(cur);
+        int time = 0;
+        for (const auto& neighbor : graph.at(prv))
+        {
+            if (neighbor.first == cur)
+            {
+                time = neighbor.second;
+                break;
+            }
+        }
+        path.push_front({cur, time});
+        cur = prv;
+    }
+
+    path.push_front({start, 0});
+    return path;
 }

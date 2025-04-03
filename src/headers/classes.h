@@ -8,6 +8,7 @@ class Driver;
 class Customer;
 class Trip;
 class Registry;
+struct pathInfo;
 
 class Agency : public enable_shared_from_this <Agency>
 {
@@ -16,6 +17,8 @@ private:
     vsp <Driver>    drivers;
     vsp <Trip>      trips;
     vector <char>   regions;
+    float           starting_fee;
+    float           region_fee;
 
 public:
     Agency(char id);
@@ -23,9 +26,15 @@ public:
     // setters
     void addDriver(shared_ptr<Driver> driver);
 
+    template <size_t N>
+    void setRegions(const char (&arr)[N]);
+    void setRegionFee(const float fee);
+
     // getters
-    char getId();
-    vsp <Driver> getDrivers();
+    char getId() const;
+    float getRegionFee() const;
+    vsp <Driver> getDrivers() const;
+    vector <char> getRegions() const;
 };
 
 class Driver
@@ -42,26 +51,24 @@ public:
     Driver(string name, unsigned int license);
 
     // setters
-    template <size_t N>
-    void setRegions(const char (&arr)[N])
-    {
-        regions.clear();
-        for (auto i : arr)
-            regions.push_back(toupper(i));
-
-        sort(regions.begin(), regions.end());
-    }
+    void setRegions(vector <char> regions);
 
     void addRegion(const char reg);
     void addAgency(weak_ptr<Agency> agency);
+    void appendRegions(vector <char> regs);
 
     // getters
     void getInfo() const;
+    string getName() const;
+    vwp <Agency> getAgencies() const;
     void listRegions() const;
     void listAgencies() const;
-    string getName() const;
 
     bool operatesInRegion(const char region) const;
+
+    // functions
+    Graph createSubmap(const Graph& graph);
+    pathInfo findBestPath(const char start, const char end, const Graph graph);
 };
 
 class Customer
@@ -77,9 +84,8 @@ private:
 public:
     Customer();
 
-    void requestRide(const char startingRegion, const char endingRegion);
+    void requestRide(const char startingRegion, const char endingRegion, Registry registry, const Graph graph);
 };
-
 
 class Trip
 {
@@ -110,5 +116,29 @@ public:
     void addAgency(shared_ptr <Agency> agency);
     vsp <Agency> getAgencies();
 };
+
+struct pathInfo
+{
+    shared_ptr <Driver> driver;
+    list <pathSegment>  directions;
+    int                 time;
+    float               price;
+};
+
+template <size_t N>
+void Agency::setRegions(const char (&arr)[N])
+{
+    regions.clear();
+    for (auto i : arr)
+        regions.push_back(toupper(i));
+
+    sort(regions.begin(), regions.end());
+
+    vector <char> vec;
+    for (auto i : arr)
+        vec.push_back(i);
+    for (auto dr : drivers)
+        dr->appendRegions(vec);
+}
 
 #endif

@@ -1,5 +1,5 @@
 #include "headers/main.h"
-#include "headers/map.h"
+#include "headers/classes.h"
 
 int main()
 {
@@ -8,6 +8,7 @@ int main()
     auto agencyA = make_shared<Agency>('A');
     auto agencyB = make_shared<Agency>('B');
     auto agencyC = make_shared<Agency>('C');
+    auto agencyD = make_shared<Agency>('D');
 
     registry.addAgency(agencyA);
     registry.addAgency(agencyB);
@@ -20,30 +21,29 @@ int main()
 
     agencyA -> addDriver(driver1);
     agencyA -> addDriver(driver3);
-    agencyB -> addDriver(driver1);
+    agencyD -> addDriver(driver1);
     agencyB -> addDriver(driver2);
     agencyC -> addDriver(driver2);
     agencyC -> addDriver(driver3);
     agencyC -> addDriver(driver4);
 
-    driver1 -> setRegions({'A', 'B', 'C'});
-    driver2 -> setRegions({'B', 'D'});
-    driver3 -> setRegions({'A', 'C'});
-    driver4 -> setRegions({'C'});
+    agencyA -> setRegions({'A', 'B', 'C', 'G', 'F', 'K', 'L', 'M', 'H'});
+    agencyB -> setRegions({'C', 'D', 'E', 'H', 'I', 'J', 'M', 'N', 'O'});
+    agencyC -> setRegions({'K', 'L', 'M', 'P', 'Q', 'R', 'U', 'V', 'W'});
+    agencyD -> setRegions({'M', 'N', 'O', 'R', 'S', 'T', 'W', 'X', 'Y'});
 
-    vsp <Driver> avaDri = findDrivers('A', 'C', registry);
-    for (auto &i : avaDri)
-        i -> getInfo();
+    agencyA -> setRegionFee(2.0);
+    agencyB -> setRegionFee(3.0);
+    agencyC -> setRegionFee(4.0);
+    agencyD -> setRegionFee(1.0);
+
+    Region start = 'C';
+    Region end   = 'M';
 
     Graph map;
     createMap(map);
-
-    for (auto region : map)
-         cout << region.first << ' ';
-
-    Graph submap = createSubmap(map, driver2);
-    cout << "\nSUBMAP\n";
-    for (auto region : submap)
-        cout << region.first << ' ';
-
+    
+    Customer customer;
+    customer.requestRide(start, end, registry, map);
+    // driver1 -> listRegions();
 }
