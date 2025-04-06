@@ -1,11 +1,13 @@
 #include "headers/classes.h"
 
-void Registry::addAgency(shared_ptr <Agency> agency)
+Registry::Registry() {}
+
+void Registry::addAgency(const shared_ptr <Agency>& agency)
 {
     agencyList.push_back(agency);
 }
 
-vsp <Agency> Registry::getAgencies()
+vsp <Agency> Registry::getAgencies() const
 {
     return agencyList;
 }

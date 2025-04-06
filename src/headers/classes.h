@@ -13,120 +13,163 @@ struct pathInfo;
 class Agency : public enable_shared_from_this <Agency>
 {
 private:
-    char            id;
+    const string    agencyType;
+    const char      id;
     vsp <Driver>    drivers;
-    vsp <Trip>      trips;
-    vector <char>   regions;
+    vector <Region> regions;
     float           starting_fee;
     float           region_fee;
 
 public:
-    Agency(char id);
+    Agency(char id, string type = "normal");
+    virtual ~Agency() = default;
 
     // setters
-    void addDriver(shared_ptr<Driver> driver);
+    void addDriver(const shared_ptr<Driver>& driver);
 
     template <size_t N>
-    void setRegions(const char (&arr)[N]);
-    void setRegionFee(const float fee);
+    void setRegions     (const Region (&arr)[N]);
+    void setRegionFee   (const float fee);
+    void setStartingFee (const float fee);
 
     // getters
-    char getId() const;
-    float getRegionFee() const;
-    vsp <Driver> getDrivers() const;
-    vector <char> getRegions() const;
+    char            getId()         const;
+    string          getType()       const;
+    virtual float   getRegionFee()  const;
+    float           getStartingFee()const;
+    vsp <Driver>    getDrivers()    const;
+    vector <char>   getRegions()    const;
+
+    // functions
+    bool operatesInRegion(const char region) const;
+};
+
+class PremiumAgency : public Agency
+{
+private:
+    float premiumFee;
+
+public:
+    PremiumAgency(const char id);
+
+    void  setPremiumFee(const float fee);
+
+    float getPremiumFee() const;
+    float getRegionFee()  const override;
 };
 
 class Driver
 {
 private:
-    string          name;        // Name and surname
-    unsigned int    license;
-    float           revenue;
-    vector <char>   regions;
-    vsp <Trip>      history;
-    vwp <Agency>    agencies;
+    const string        name;        // Name and surname
+    const unsigned int  license;
+    float               revenue = 0.0;
+    vector <Region>     regions;
+    vector <Region>     premiumRegions;
+    vsp <Trip>          history;
+    vwp <Agency>        agencies;
 
 public:
-    Driver(string name, unsigned int license);
+    Driver(const string name, const unsigned int license);
 
     // setters
     void setRegions(vector <char> regions);
 
-    void addRegion(const char reg);
-    void addAgency(weak_ptr<Agency> agency);
-    void appendRegions(vector <char> regs);
+    void addRegion      (const char reg, const string type = "normal");
+    void addAgency      (const weak_ptr<Agency>& agency);
+    void appendRegions  (const vector <char>& regs, const string type = "normal");
+    void addTrip        (const shared_ptr <Trip>& trip);
+    void updateRevenue  (const float price);
 
     // getters
-    void getInfo() const;
-    string getName() const;
-    vwp <Agency> getAgencies() const;
-    void listRegions() const;
-    void listAgencies() const;
+    void         getInfo()                  const;
+    void         listRegions(string type)   const;
+    void         listAgencies()             const;
+    string       getName()                  const;
+    vwp <Agency> getAgencies()              const;
+    template <typename T>
+    T            getBestStartingProp(const Region region, const string type) const;
 
-    bool operatesInRegion(const char region) const;
 
     // functions
-    Graph createSubmap(const Graph& graph);
-    pathInfo findBestPath(const char start, const char end, const Graph graph);
+    bool        operatesInRegion(const char region, const string type) const;
+    Graph       createSubmap    (const Graph& graph, const string type);
+    pathInfo    findBestPath    (const char start, const char end, const Graph& graph, const string type);
 };
 
-class Customer
+class Customer : public enable_shared_from_this <Customer>
 {
 private:
-    unsigned short  id;
-    vsp <Trip>      history;
-    unsigned int    total_distance;
-    float           total_expenses;
+    const unsigned short    id;
+    vsp <Trip>              history;
+    float                   total_expenses = 0.0;
 
     static unsigned short       nextId;
 
 public:
     Customer();
 
-    void requestRide(const char startingRegion, const char endingRegion, Registry registry, const Graph graph);
+    void addTrip            (const shared_ptr <Trip>& trip);
+    void updateExpenses     (const float price);
+    void requestRide        (const char startingRegion, const char endingRegion,
+                             const Registry& registry, const Graph& graph, const string type = "normal");
+    void requestPremiumRide (const char startingRegion, const char endingRegion,
+                             const Registry& registry, const Graph& graph);
+
+    void getInfo()  const;
+    int  getId()    const ;
 };
 
 class Trip
 {
 private:
-    string      id;
-    char        origin, destination;
-    float       price;
-    Driver*     driver;
-    Customer*   customer;
-    Agency*     agency;
+    const int             id;
+    const Region          origin, destination;
+    const float           price;
+    weak_ptr <Driver>     driver;
+    weak_ptr <Customer>   customer;
+    vwp <Agency>          agencies;
+    const string          type;
+
+    static unsigned short           nextId;
 
 public:
-    Trip(const char          origin,
-         const char          destination,
-         weak_ptr <Customer> customer,
-         weak_ptr <Driver>   driver,
-         weak_ptr <Agency>   agency);
-    // Calculates the price on its own, using regions * agency price
+    Trip(const Region               origin,
+         const Region               destination,
+               float                price,
+               weak_ptr <Driver>    driver,
+               weak_ptr <Customer>  customer,
+               vwp <Agency>         agency,
+         const string               type);
 
     ~Trip();
+
+    int                 getId()     const;
+    void                getInfo()   const;
+    weak_ptr <Driver>   getDriver() const;
 };
 
 class Registry
 {
 private:
     vsp <Agency> agencyList;
+
 public:
-    void addAgency(shared_ptr <Agency> agency);
-    vsp <Agency> getAgencies();
+    Registry();
+    void addAgency(const shared_ptr <Agency>& agency);
+    vsp <Agency> getAgencies() const;
 };
 
 struct pathInfo
 {
-    shared_ptr <Driver> driver;
-    list <pathSegment>  directions;
-    int                 time;
-    float               price;
+    weak_ptr <Driver>       driver;
+    list <pathSegment>      directions;
+    int                     time;
+    float                   price;
 };
 
 template <size_t N>
-void Agency::setRegions(const char (&arr)[N])
+void Agency::setRegions(const Region (&arr)[N])
 {
     regions.clear();
     for (auto i : arr)
@@ -138,7 +181,26 @@ void Agency::setRegions(const char (&arr)[N])
     for (auto i : arr)
         vec.push_back(i);
     for (auto dr : drivers)
-        dr->appendRegions(vec);
+        dr->appendRegions(vec, agencyType);
+}
+
+template <typename T>
+T Driver::getBestStartingProp(const Region region, const string type) const
+{
+    weak_ptr <Agency> agency;
+    float min = FLT_MAX;
+    for (const auto& ag : agencies)
+    {
+        if (ag.lock() -> getStartingFee() < min && ag.lock() -> getType() == type && ag.lock() -> operatesInRegion(region))
+        {
+            min = ag.lock() -> getStartingFee();
+            agency = ag;
+        }
+    }
+    if constexpr (is_same_v<T, float>)
+        return min;
+    else
+        return agency;
 }
 
 #endif

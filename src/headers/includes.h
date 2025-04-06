@@ -12,6 +12,9 @@
 #include <map>
 #include <list>
 #include <queue>
+#include <cfloat>
+#include <type_traits>
+#include <ncurses.h>
 
 using namespace std;
 
@@ -22,7 +25,7 @@ template <typename T>
 using vwp = vector <weak_ptr <T>>;
 
 using Region    = char;
-using Time      = unsigned short int;
+using Time      = float;
 using Neighbors = vector<pair<Region, Time>>;
 
 // Custom hash function for region
