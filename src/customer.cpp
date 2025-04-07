@@ -70,8 +70,8 @@ void Customer::requestRide(const char startingRegion, const char endingRegion, c
         cout << endl << endl;
     }
 
-    int input = 0;
-    cout << "Select which journey do you want: ("; for (int i = 1; i <= bestDrives.size(); i++) { cout << i; if (i != bestDrives.size()) cout << ", "; } cout << "): ";
+    unsigned long int input = 0;
+    cout << "Select which journey do you want: ("; for (unsigned long int i = 1; i <= bestDrives.size(); i++) { cout << i; if (i != bestDrives.size()) cout << ", "; } cout << "): ";
     while (input <= 0 || input > bestDrives.size())
     {
         cin >> input;

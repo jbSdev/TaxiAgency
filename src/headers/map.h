@@ -17,4 +17,6 @@ list <pathSegment> getShortestPath(const map<Region, Region>& previous,
                               const Region& start,
                               const Region& end);
 
+void printMap();
+
 #endif

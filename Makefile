@@ -28,16 +28,22 @@ HEADERS = $(wildcard $(HEADDIR)/*.h)
 # Default target
 all: $(TARGET)
 
+$(BUILDDIR):
+	@mkdir -p $(BUILDDIR)
+
 # Compile source files into object files
 $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp | $(BUILDDIR)
-	$(CXX) $(CXXFLAGS) -I$(HEADDIR) -c $< -o $@
+	@echo "Compiling $<"
+	@$(CXX) $(CXXFLAGS) -I$(HEADDIR) -c $< -o $@
 
 # Link
 $(TARGET): $(OBJECTS)
-	$(CXX) $(OBJECTS) -o $(TARGET)
+	@echo "Linking $@"
+	@$(CXX) $(OBJECTS) -o $(TARGET) 
 
 # Clean the trash
 clean:
-	$(RM) -r $(OBJECTS)
+	@echo "Cleaning up..."
+	@$(RM) -r $(OBJECTS)
 
 .PHONY: all clean

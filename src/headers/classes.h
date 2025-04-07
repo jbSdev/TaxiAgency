@@ -177,9 +177,10 @@ void Agency::setRegions(const Region (&arr)[N])
 
     sort(regions.begin(), regions.end());
 
-    vector <char> vec;
+    vector <Region> vec;
     for (auto i : arr)
         vec.push_back(i);
+
     for (auto dr : drivers)
         dr->appendRegions(vec, agencyType);
 }

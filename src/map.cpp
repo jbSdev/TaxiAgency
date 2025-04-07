@@ -124,3 +124,16 @@ list<pathSegment> getShortestPath(const map<Region, Region>& previous, const Gra
     path.push_front({start, 0});
     return path;
 }
+
+void printMap()
+{
+    cout << "A——B——C——D——E\n";
+    cout << "|  |  |  |  |\n";
+    cout << "F——G——H——I——J\n";
+    cout << "|  |  |  |  |\n";
+    cout << "K——L——M——N——O\n";
+    cout << "|  |  |  |  |\n";
+    cout << "P——Q——R——S——T\n";
+    cout << "|  |  |  |  |\n";
+    cout << "U——V——W——X——Y\n";
+}

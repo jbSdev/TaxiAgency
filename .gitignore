@@ -1,3 +1,4 @@
 # folders
 .vscode
 build
+compile_commands.json

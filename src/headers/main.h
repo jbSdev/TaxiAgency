@@ -6,4 +6,7 @@
 #include "func.h"
 #include "map.h"
 
+void clrscr();
+void menu(Registry& registry);
+
 #endif

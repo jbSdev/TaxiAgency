@@ -13,8 +13,10 @@
 #include <list>
 #include <queue>
 #include <cfloat>
+#include <climits>
+#include <cstdlib>
 #include <type_traits>
-#include <ncurses.h>
+#include <sstream>
 
 using namespace std;
 
