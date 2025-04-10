@@ -11,6 +11,8 @@ void Driver::setRegions(const vector <Region> regs)
     sort(regions.begin(), regions.end());
 }
 
+void Driver::setName(const string in_name) { name = in_name; }
+
 void Driver::appendRegions(const vector <Region>& regs, const string type)
 {
     for (const auto reg : regs)

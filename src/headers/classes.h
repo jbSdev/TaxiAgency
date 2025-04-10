@@ -16,6 +16,7 @@ private:
     const string    agencyType;
     const char      id;
     vsp <Driver>    drivers;
+    float           revenue = 0.0;
     vector <Region> regions;
     float           starting_fee;
     float           region_fee;
@@ -39,6 +40,7 @@ public:
     float           getStartingFee()const;
     vsp <Driver>    getDrivers()    const;
     vector <char>   getRegions()    const;
+    void            getInfo()       const;
 
     // functions
     bool operatesInRegion(const char region) const;
@@ -61,7 +63,7 @@ public:
 class Driver
 {
 private:
-    const string        name;        // Name and surname
+    string              name;        // Name and surname
     const unsigned int  license;
     float               revenue = 0.0;
     vector <Region>     regions;
@@ -73,7 +75,8 @@ public:
     Driver(const string name, const unsigned int license);
 
     // setters
-    void setRegions(vector <char> regions);
+    void setRegions(const vector <char> regions);
+    void setName(const string name);
 
     void addRegion      (const char reg, const string type = "normal");
     void addAgency      (const weak_ptr<Agency>& agency);

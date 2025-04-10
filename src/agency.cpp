@@ -1,4 +1,5 @@
 #include "headers/classes.h"
+#include <algorithm>
 
 Agency::Agency(char id, string type) : agencyType(type), id(id) {};
 
@@ -30,6 +31,15 @@ void Agency::setStartingFee(const float fee) { starting_fee = fee; }
 bool Agency::operatesInRegion(const char region) const
 {
     return binary_search(regions.begin(), regions.end(), region);
+}
+
+void Agency::getInfo() const
+{
+    cout << "ID: "      << id       << endl;
+    cout << "Revenue: " << revenue  << endl;
+    cout << "Drivers:\n";
+    for (auto& dr : drivers)
+        cout << dr -> getName() << endl;
 }
 
 // -------------- //
