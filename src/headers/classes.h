@@ -156,11 +156,15 @@ class Registry
 {
 private:
     vsp <Agency> agencyList;
+    vsp <Customer> customerList;
 
 public:
     Registry();
     void addAgency(const shared_ptr <Agency>& agency);
     vsp <Agency> getAgencies() const;
+
+    void addCustomer(const shared_ptr <Customer>& customer);
+    vsp <Customer> getCustomers() const;
 };
 
 struct pathInfo
@@ -176,7 +180,8 @@ void Agency::setRegions(const Region (&arr)[N])
 {
     regions.clear();
     for (auto i : arr)
-        regions.push_back(toupper(i));
+        if (isalpha(i))
+            regions.push_back(toupper(i));
 
     sort(regions.begin(), regions.end());
 

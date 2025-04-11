@@ -1,10 +1,8 @@
-#include "headers/classes.h"
 #include "headers/main.h"
-#include <chrono>
-#include <memory>
+#include <cctype>
 
-inline int adminPanel   (Registry& reg);
-inline int customerPanel(Registry& reg);
+inline int adminPanel   (Registry& reg, Graph& map, int& index);
+inline int customerPanel(Registry& reg, Graph& map, int& index);
 
 void clrscr()
 {
@@ -23,6 +21,7 @@ void wait(const int ms)
 template <typename T>
 inline void getVal(T& input)
 {
+    cin.clear();
     cin >> input;
     if (cin.fail())
     {
@@ -33,47 +32,51 @@ inline void getVal(T& input)
     return;
 }
 
-inline vector <Region> getCharLine()
+inline vector <unsigned char> getCharLine()
 {
     string input;
-    vector <Region> temp;
+    vector <unsigned char> temp;
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
     while (temp.size() == 0 || temp.size() > 25)
     {
-        cout << "Please insert the regions in a row: ";
+        temp.clear();
         getline(cin, input);
 
-        stringstream ss(input);
-        Region reg;
-        while (ss >> reg)
+        for (auto ch : input)
         {
-            if ((reg >= 'A' && reg <= 'Z') || (reg >= 'a' && reg <= 'z'))
-                temp.push_back(reg);
+            if (isalpha(ch))
+                temp.push_back(ch);
         }
+
         if (temp.size() == 0)
             cout << "Wrong input. The regions are empty. Please try again.\n";
         else if (temp.size() > 25)
             cout << "Too many regions. Please try again.\n";
     }
+    cout << "GOT REGIONS:\n";
+    for (auto i : temp)
+        cout << i << ' ';
     return temp;
 }
 
 inline void createAgency(Registry& reg)
 {
     char id;
-    cout << "Please insert an ID for the agency. It should be an uppercase character.\n";
-    while (id < 'A' || id > 'Z')
+    cout << "Please insert an ID for the agency. It should be a character.\n";
+    while (!isalpha(id))
     {
-        id = getchar();
-        if (id < 'A' || id > 'Z')
+        getVal(id);
+        if (!isalpha(id))
             cout << "Please input a valid character.\n";
     }
     cout << "\nNow let's select the regions in which the agency will operate:\n";
     cout << "This is the city map:\n";
     printMap();
 
-    vector <Region> temp = getCharLine();
-    char regions[25];
+    vector <unsigned char> temp = getCharLine();
+    char regions[25] = {0};
     copy(temp.begin(), temp.end(), regions);
 
     float regionFee = 0, startingFee = 0;
@@ -88,13 +91,13 @@ inline void createAgency(Registry& reg)
     while (regionFee <= 0)
     {
         cout << "Set the region fee: ";
-        cin >> regionFee;
+        getVal(regionFee);
         if (regionFee <= 0)
             cout << "Invalid input. Please try again.\n";
     }
 
     auto agency = make_shared<Agency>(id);
-    reg.addAgency      (agency);
+    reg.addAgency           (agency);
     agency -> setRegions    (regions);
     agency -> setStartingFee(startingFee);
     agency -> setRegionFee  (regionFee);
@@ -110,7 +113,7 @@ inline void updateRegions(shared_ptr <Agency>& agn)
     vector <Region> regs = agn -> getRegions();
     cout << "\nMap of the city:\n";
     printMap();
-    vector <Region> update = getCharLine();
+    vector <unsigned char> update = getCharLine();
     char copied[25];
     copy(update.begin(), update.end(), copied);
     agn -> setRegions(copied);
@@ -234,7 +237,7 @@ inline void createDriver(Registry& reg)
     cout << endl;
     auto driver = make_shared <Driver>(name, license);
     cout << "Driver's agencies: ";
-    vector <char> newAgencies = getCharLine();
+    vector <unsigned char> newAgencies = getCharLine();
     for (auto& ag : reg.getAgencies())
         for (unsigned long int i = 0; i < newAgencies.size(); i++)
             if (ag -> getId() == newAgencies[i])
@@ -267,7 +270,7 @@ inline void updateDriverAgencies(shared_ptr <Driver> drv, Registry& reg)
     cout << endl;
 
     cout << "List new agencies:\n";
-    vector <char> newAgencies = getCharLine();
+    vector <unsigned char> newAgencies = getCharLine();
     for (auto& ag : reg.getAgencies())
         for (auto ch : newAgencies)
             if (ch == ag -> getId())
@@ -306,10 +309,10 @@ inline void updateDriver(Registry& reg)
     cout << "  1. Name\n";
     cout << "  2. Agencies\n";
     input = 0;
-    while (input != 1 || input != 2)
+    while (input != 1 && input != 2)
     {
         getVal(input);
-        if (input != 1 || input != 2)
+        if (input != 1 && input != 2)
             cout << "Invalid input. Please try again: ";
     }
     switch(input)
@@ -355,6 +358,8 @@ inline void getAgencyData(Registry& reg)
         }
     }
     cout << "Click to continue\n";
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     getchar();
     return;
 }
@@ -370,7 +375,7 @@ inline void getDriverData(Registry& reg)
 
     cout << "Available drivers:\n";
     for (unsigned long int i = 0; i < drivers.size(); i++)
-        cout << i + 1 << drivers[i] -> getName() << endl;
+        cout << i + 1 << ". " << drivers[i] -> getName() << endl;
 
     cout << "Select the driver to get the info about: ";
     unsigned long int input = 0;
@@ -383,12 +388,15 @@ inline void getDriverData(Registry& reg)
     cout << "Selected driver's data:\n";
     drivers[input - 1] -> getInfo();
     cout << "Click to continue\n";
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     getchar();
     return;
 }
 
-inline int adminPanel(Registry& reg)
+inline int adminPanel(Registry& reg, Graph& map, int& index)
 {
+    clrscr();
     cout << "Welcome to the ADMIN PANEL\n\n";
     cout << "In here, you can:\n";
     cout << "  1. Create agencies\n";
@@ -422,14 +430,128 @@ inline int adminPanel(Registry& reg)
         case 6:
             getDriverData(reg); break;
         case 9:
-            // customerPanel(reg); break;
+            customerPanel(reg, map, index); break;
         case 0:
-            return 1;
+            return -1;
     }
     return 0;
 }
 
-void menu(Registry& registry)
+void getRide(Registry& reg, shared_ptr <Customer>& cst, Graph& map)
+{
+    clrscr();
+    char start = '.', end = '.';
+    cout << "Map of the city:\n";
+    printMap();
+    cout << "Where do you want to start the journey: ";
+    while (start < 'A' || start > 'Z')
+    {
+        getVal(start);
+        if (start < 'A' || start > 'Z')
+            cout << "Incorrect input. Please try again: ";
+    }
+    while (end < 'A' || end > 'Z')
+    {
+        getVal(end);
+        if (end < 'A' || end > 'Z')
+            cout << "Incorrect input. Please try again: ";
+    }
+    cout << "What type of drive do you want to request?\n";
+    cout << "  1. Normal\n";
+    cout << "  2. Premium\n";
+    int input;
+    while (input != 1 && input != 2)
+    {
+        getVal(input);
+        if (input != 1 && input != 2)
+            cout << "Incorrect input. Please try again.\n";
+    }
+    if (input == 1)
+        cst -> requestRide(start, end, reg, map);
+    else
+        cst -> requestPremiumRide(start, end, reg, map);
+    return;
+}
+
+void switchCustomer(Registry& reg, int& index)
+{
+    clrscr();
+    cout << "Available customers";
+    vsp <Customer> customers = reg.getCustomers();
+    for (auto& cst : customers)
+        cout << "  " << cst -> getId() << endl;
+
+    unsigned long int input = 0;
+    cout << "Select which customer do you want to switch to:\n";
+    while (input <= 0 || input > customers.size())
+    {
+        getVal(input);
+        if (input <= 0 || input > customers.size())
+            cout << "Incorrect input. Please try again: ";
+    }
+    index = input - 1;
+    return;
+}
+
+void createNewCustomer(Registry& reg, int& index)
+{
+    cout << "Creating a new customer with id: ";
+    auto customer = make_shared <Customer> ();
+    reg.addCustomer(customer);
+    cout << customer -> getId();
+    index = customer -> getId() - 1;
+    cout << "Switching to the newly created customer...\n";
+    wait(750);
+    switchCustomer(reg, index);
+    return;
+}
+
+int customerPanel(Registry& reg, Graph& map, int& index)
+{
+    clrscr();
+
+    cout << "Welcome to the customer panel!\n";
+    cout << "Here, you can request rides as a customer.\n";
+    cout << "By default, you have 3 customers available,\n";
+    cout << "but you can create more at any time you want\n";
+    cout << "Using the menu below:\n\n";
+    cout << "  1. Request a ride\n";
+    cout << "  2. Get info about the customer\n";
+    cout << "  3. Switch the customer\n";
+    cout << "  4. Create a new customer\n\n";
+
+    auto cst = reg.getCustomers()[index];
+    cout << "You're using the customer " << cst -> getId() << "\n\n";
+
+    cout << "Select the action you want to make: ";
+    int in = -1;
+    while (!(in >= 1 && in <= 4))
+    {
+        getVal(in);
+        if (!(in >= 1 && in <= 4))
+            cout << "Invalid input. Please try again: ";
+    }
+
+    switch (in)
+    {
+        case 1:
+            getRide(reg, cst, map);         break;
+        case 2:
+            cst -> getInfo();               break;
+        case 3:
+            switchCustomer(reg, index);     break;
+        case 4:
+            createNewCustomer(reg, index);  break;
+        case 9:
+            adminPanel(reg, map, index);    break;
+        case 0:
+            return -1;
+    }
+
+    return 1;
+}
+
+void menu(Registry& registry, Graph& map)
 {
     string input1, input2, input3;
     cout << "/--------------------------\\\n";
@@ -440,11 +562,15 @@ void menu(Registry& registry)
     cout << "\\--------------------------/\n";
     cout << "\n\tClick any key to continue...\n"; getchar();
     clrscr();
+    int index = 0;
     while (true)
     {
-        int state;
-        state = adminPanel(registry);
-        if (state == 1)
+        int state = 0;
+        if      (state == 0)
+            state = adminPanel(registry, map, index);
+        else if (state == 1)
+            state = customerPanel(registry, map, index);
+        else if (state == -1)
             return;
     }
 }

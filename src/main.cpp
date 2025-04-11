@@ -3,7 +3,17 @@
 int main()
 {
     Registry registry;
-    menu(registry);
+    auto customer1 = make_shared<Customer>();
+    auto customer2 = make_shared<Customer>();
+    auto customer3 = make_shared<Customer>();
+    registry.addCustomer(customer1);
+    registry.addCustomer(customer2);
+    registry.addCustomer(customer3);
+
+    Graph map;
+    createMap(map);
+
+    menu(registry, map);
     /*
      * auto agencyA = make_shared<Agency>('A');
      * auto agencyB = make_shared<Agency>('B');
@@ -57,8 +67,6 @@ int main()
      *  * Region end   = 'M';
      *  |)}>#
      * 
-     * Graph map;
-     * createMap(map);
      * 
      * auto customer1 = make_shared <Customer>();
      * auto customer2 = make_shared <Customer>();

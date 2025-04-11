@@ -7,6 +7,6 @@
 #include "map.h"
 
 void clrscr();
-void menu(Registry& registry);
+void menu(Registry& registry, Graph& map);
 
 #endif

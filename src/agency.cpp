@@ -37,6 +37,7 @@ void Agency::getInfo() const
 {
     cout << "ID: "      << id       << endl;
     cout << "Revenue: " << revenue  << endl;
+    cout << "Regions: "; for (auto reg : regions) cout << reg << ' '; cout << endl;
     cout << "Drivers:\n";
     for (auto& dr : drivers)
         cout << dr -> getName() << endl;

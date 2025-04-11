@@ -68,8 +68,8 @@ void Driver::getInfo() const
 {
     cout << "\nName:\t\t\t"             << name << endl;
     cout << "License:\t\t"              << license << endl;
-    cout << "Normal regions:\t";        listRegions("normal");
-    cout << "Premium regions:\t";       listRegions("premium");
+    cout << "Normal regions:\t\t";      listRegions("normal");
+    cout << "Premium regions:\t\t";     listRegions("premium");
     cout << "Revenue:\t\t"              << revenue << endl;;
     cout << "Agencies:\t\t";            listAgencies();
 }

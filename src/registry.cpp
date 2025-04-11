@@ -11,3 +11,13 @@ vsp <Agency> Registry::getAgencies() const
 {
     return agencyList;
 }
+
+void Registry::addCustomer(const shared_ptr <Customer>& customer)
+{
+    customerList.push_back(customer);
+}
+
+vsp <Customer> Registry::getCustomers() const
+{
+    return customerList;
+}
