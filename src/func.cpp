@@ -89,7 +89,10 @@ void createTrip(const Region start, const Region end, const pathInfo& path, weak
     const auto journey                  = make_shared <Trip> (start, end, price, driver, customer, agencies, type);
 
     driver.lock()   -> addTrip(journey);
-    driver.lock()   -> updateRevenue(price);
+    driver.lock()   -> updateRevenue(price / 2);
     customer.lock() -> addTrip(journey);
     customer.lock() -> updateExpenses(price);
+    for (auto& ag : agencies)
+        ag.lock() -> updateRevenue((price / 2) / agencies.size());
+    return;
 }

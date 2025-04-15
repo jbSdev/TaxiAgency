@@ -13,6 +13,9 @@ string Agency::getType() const { return agencyType; }
 
 void Agency::addDriver(const shared_ptr<Driver>& driver)
 {
+    if (isIn(drivers, driver))
+        return;
+
     drivers.push_back(driver);
     if (auto self = shared_from_this())
         driver -> addAgency(self);
@@ -27,6 +30,8 @@ vector <char> Agency::getRegions() const { return regions; }
 void Agency::setRegionFee(const float fee) { region_fee = fee; }
 
 void Agency::setStartingFee(const float fee) { starting_fee = fee; }
+
+void Agency::updateRevenue(const float price) { revenue += price; }
 
 bool Agency::operatesInRegion(const char region) const
 {

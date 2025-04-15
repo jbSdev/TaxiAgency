@@ -25,7 +25,7 @@ void Customer::getInfo() const
     for (int i = 0; i < size; i++)
     {
         cout << "  " << i + 1 << ". ";
-        cout << history[i] -> getId() << endl;
+        cout << history[i] -> getStart() << " -> " << history[i] -> getEnd() << endl;
     }
 }
 

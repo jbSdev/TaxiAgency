@@ -32,7 +32,8 @@ void Trip::getInfo() const
     cout << "Agencies: ";   for (auto &ag : agencies) cout << ag.lock() -> getId() << " ";  cout << endl;
 }
 
-weak_ptr <Driver> Trip::getDriver() const
-{
-    return driver;
-}
+weak_ptr <Driver> Trip::getDriver() const { return driver; }
+
+Region Trip::getStart() const { return origin; }
+
+Region Trip::getEnd()   const { return destination; }

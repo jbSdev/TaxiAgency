@@ -32,6 +32,7 @@ public:
     void setRegions     (const Region (&arr)[N]);
     void setRegionFee   (const float fee);
     void setStartingFee (const float fee);
+    void updateRevenue  (const float price);
 
     // getters
     char            getId()         const;
@@ -150,6 +151,8 @@ public:
     int                 getId()     const;
     void                getInfo()   const;
     weak_ptr <Driver>   getDriver() const;
+    Region              getStart()  const;
+    Region              getEnd()    const;
 };
 
 class Registry

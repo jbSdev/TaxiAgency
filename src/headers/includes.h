@@ -21,6 +21,13 @@
 #include <thread>
 #include <chrono>
 
+#ifdef _WIN32
+    #include <conio.h>
+#else
+    #include <termios.h>
+    #include <unistd.h>
+#endif
+
 using namespace std;
 
 template <typename T>
