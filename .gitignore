@@ -1,4 +1,7 @@
 # folders
 .vscode
 build
-compile_commands.json
+
+# files
+.gitignore
+agency
