@@ -1,43 +1,11 @@
+#include "headers/func.h"
 #include "headers/main.h"
-#include <termios.h>
-#include <unistd.h>
 
 inline int adminPanel   (Registry& reg, Graph& map, int& index);
 inline int customerPanel(Registry& reg, Graph& map, int& index);
 
-void clrscr()
-{
-#ifdef _WIN32
-    system("cls");
-#else
-    system("clear");
-#endif
-}
-
-void p2c()  // press to continue
-{
-cout << "Press any key to continue..." << std::flush;
-#ifdef _WIN32
-    _getch();
-#else
-    struct termios oldt, newt;
-    tcgetattr(STDIN_FILENO, &oldt);
-    newt = oldt;
-    newt.c_lflag &= ~(ICANON | ECHO);
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-    char ch;
-    read(STDIN_FILENO, &ch, 1);
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-#endif
-}
-
-void wait(const int ms)
-{
-    this_thread::sleep_for(chrono::milliseconds(ms));
-}
-
 template <typename T>
-inline void getVal(T& input)
+void getVal(T& input)
 {
     while (true)
     {
@@ -57,7 +25,7 @@ inline void getVal(T& input)
 
 }
 
-inline vector <unsigned char> getCharLine()
+vector <unsigned char> getCharLine()
 {
     string input;
     vector <unsigned char> temp;
@@ -75,13 +43,11 @@ inline vector <unsigned char> getCharLine()
 
         if (temp.size() == 0)
             cout << "Wrong input. No data found. Please try again.\n";
-        else if (temp.size() > 25)
-            cout << "Too much data. Please try again.\n";
     }
     return temp;
 }
 
-inline void createAgency(Registry& reg)
+void createAgency(Registry& reg)
 {
     char id = '.';
     cout << "Please insert an ID for the agency. It should be a character.\n";
@@ -104,8 +70,19 @@ inline void createAgency(Registry& reg)
     cout << "This is the city map:\n";
     printMap();
 
-    vector <unsigned char> temp = getCharLine();
+    bool check = 0;
+    vector <unsigned char> temp;
     char regions[25] = {0};
+    while (check == 0)
+    {
+        check = 1;
+        temp = getCharLine();
+        if (temp.size() > 25)
+        {
+            cout << "Too much data. Please try again: ";
+            check = 0;
+        }
+    }
     copy(temp.begin(), temp.end(), regions);
 
     float regionFee = 0, startingFee = 0;
@@ -195,12 +172,17 @@ inline void updatePremiumFee(shared_ptr <Agency>& agn)
 
 inline void updateAgency(Registry& reg)
 {
-    clrscr();
     vsp <Agency> agencies = reg.getAgencies();
+    if (agencies.size() == 0)
+    {
+        cout << "There are no available agencies.\n";
+        p2c();
+        return;
+    }
     int size = agencies.size();
-    cout << "Available agencies: ";
-    for (int i = 0; i <= size; i++)
-        cout << i + 1 << ". " << agencies[i] -> getId() << " (" << agencies[i] -> getType() << ")\n";
+    cout << "Available agencies:\n";
+    for (int i = 0; i < size; i++)
+        cout << "  " << i + 1 << ". " << agencies[i] -> getId() << " (" << agencies[i] -> getType() << ")\n";
 
     cout << "\nWhich agency would you like to update: ";
     int input = 0;
@@ -242,18 +224,36 @@ inline void updateAgency(Registry& reg)
     return;
 }
 
-inline void createDriver(Registry& reg)
+void createDriver(Registry& reg)
 {
-    clrscr();
+
+    if (reg.getAgencies().size() == 0)
+    {
+        cout << "There are not agencies yet. Please create one before creaing the driver.\n";
+        p2c();
+        return;
+    }
     cout << "Creating a driver\n\n";
+    bool check = 0;
     string name;
-    int license;
+    unsigned int license;
 
     cout << "Driver's name: ";
     getVal(name);
 
     cout << "Driver's license number (only digits [int]): ";
-    getVal(license);
+    while (check == 0)
+    {
+        getVal(license);
+        check = 1;
+        for (auto& ag : reg.getAgencies())
+            for (auto& dr : ag -> getDrivers())
+                if (dr -> getLicense() == license)
+                    check = 0;
+
+        if (check == 0)
+            cout << "There already exists a driver with given license number. Please try again: \n";
+    }
 
     cout << "Available agencies:\n";
     for (auto& ag : reg.getAgencies())
@@ -262,7 +262,7 @@ inline void createDriver(Registry& reg)
 
     auto driver = make_shared <Driver>(name, license);
     cout << "Input driver's agencies:\n";
-    bool ch_check = 0;
+    check = 0;
     int sum = -1;
     vector <unsigned char> newAgencies;
     while (sum != newAgencies.size())   // if every inputted agency is real
@@ -271,11 +271,11 @@ inline void createDriver(Registry& reg)
         newAgencies = getCharLine();
         for (auto ch : newAgencies)
         {
-            ch_check = 0;
+            check = 0;
             for (auto& ag : reg.getAgencies())
-                if (ch == ag -> getId()) ch_check = 1;
+                if (ch == ag -> getId()) check = 1;
 
-            if (ch_check == 1)          // agency is real
+            if (check == 1)          // agency is real
                 sum++;
         }
         if (sum != newAgencies.size())
@@ -330,7 +330,6 @@ inline void updateDriverAgencies(shared_ptr <Driver> drv, Registry& reg)
 
 inline void updateDriver(Registry& reg)
 {
-    clrscr();
     vsp <Driver> drivers;
     for (auto& ag : reg.getAgencies())
         for (auto& dr : ag -> getDrivers())
@@ -371,9 +370,8 @@ inline void updateDriver(Registry& reg)
     }
 }
 
-inline void getAgencyData(Registry& reg)
+void getAgencyData(Registry& reg)
 {
-    clrscr();
     vsp <Agency> agencies = reg.getAgencies();
 
     if (agencies.size() == 0)
@@ -418,7 +416,6 @@ inline void getAgencyData(Registry& reg)
 
 inline void getDriverData(Registry& reg)
 {
-    clrscr();
     vsp <Driver> drivers;
     for (auto& ag : reg.getAgencies())
         for (auto& dr : ag -> getDrivers())
@@ -477,20 +474,19 @@ inline int adminPanel(Registry& reg, Graph& map, int& index)
         switch (in)
         {
             case 1:
-                createAgency(reg);  return 0;
+                clrscr(); createAgency(reg);  return 0;
             case 2:
-                updateAgency(reg);  return 0;
+                clrscr(); updateAgency(reg);  return 0;
             case 3:
-                createDriver(reg);  return 0;
+                clrscr(); createDriver(reg);  return 0;
             case 4:
-                updateDriver(reg);  return 0;
+                clrscr(); updateDriver(reg);  return 0;
             case 5:
-                getAgencyData(reg); return 0;
+                clrscr(); getAgencyData(reg); return 0;
             case 6:
-                getDriverData(reg); return 0;
+                clrscr(); getDriverData(reg); return 0;
             case 9:
-                // customerPanel(reg, map, index); return 0;
-                return 1;
+                return 1;       // switch to customerPanel without looping
             case 0:
                 return -1;
             default:
@@ -502,7 +498,6 @@ inline int adminPanel(Registry& reg, Graph& map, int& index)
 
 void getRide(Registry& reg, shared_ptr <Customer>& cst, Graph& map)
 {
-    clrscr();
     char start = '.', end = '.';
     cout << "Map of the city:\n";
     printMap();
@@ -524,33 +519,43 @@ void getRide(Registry& reg, shared_ptr <Customer>& cst, Graph& map)
             cout << "Incorrect input. Please try again: ";
     }
 
+    if (start == end)
+    {
+        cout << "That trip doesn't make any sense...\n";
+        p2c();
+        return;
+    }
+
     cout << "What type of drive do you want to request?\n";
     cout << "  1. Normal\n";
     cout << "  2. Premium\n";
-    int input = 0;
-    while (input != 1 && input != 2)
+    int type = 0;
+    while (type != 1 && type != 2)
     {
-        getVal(input);
-        if (input != 1 && input != 2)
-            cout << "Incorrect input. Please try again.\n";
+        getVal(type);
+        if (type != 1 && type != 2)
+            cout << "Incorrect type. Please try again.\n";
     }
-    if (input == 1)
-        cst -> requestRide(start, end, reg, map);
-    else
-        cst -> requestPremiumRide(start, end, reg, map);
+    int state;
+    state = cst -> requestRide(start, end, reg, map, (type == 1) ? "normal" : "premium");
 
+    if (state == 0)
+    {
+        p2c();
+        return;
+    }
     cout << "Ride created!\n";
     p2c();
     return;
 }
 
-void switchCustomer(Registry& reg, int& index)
+inline void switchCustomer(Registry& reg, int& index)
 {
-    clrscr();
-    cout << "Available customers";
+    cout << "Available customers:";
     vsp <Customer> customers = reg.getCustomers();
     for (auto& cst : customers)
-        cout << "  " << cst -> getId() << endl;
+        cout << "  " << cst -> getId();
+    cout << endl;
 
     unsigned long int input = 0;
     cout << "Select which customer do you want to switch to:\n";
@@ -564,7 +569,7 @@ void switchCustomer(Registry& reg, int& index)
     return;
 }
 
-void createNewCustomer(Registry& reg, int& index)
+inline void createNewCustomer(Registry& reg, int& index)
 {
     cout << "Creating a new customer with id: ";
     auto customer = make_shared <Customer> ();
@@ -577,17 +582,15 @@ void createNewCustomer(Registry& reg, int& index)
     return;
 }
 
-void getCustomerInfo(shared_ptr <Customer>& cst)
+inline void getCustomerInfo(shared_ptr <Customer>& cst)
 {
-    clrscr();
     cst -> getInfo();
     p2c();
 }
 
-int customerPanel(Registry& reg, Graph& map, int& index)
+inline int customerPanel(Registry& reg, Graph& map, int& index)
 {
     clrscr();
-
     cout << "Welcome to the customer panel!\n";
     cout << "Here, you can request rides as a customer.\n";
     cout << "By default, you have 3 customers available,\n";
@@ -617,16 +620,15 @@ int customerPanel(Registry& reg, Graph& map, int& index)
         switch (in)
         {
             case 1:
-                getRide(reg, cst, map);         return 1;
+                clrscr(); getRide(reg, cst, map);         return 1;
             case 2:
-                getCustomerInfo(cst);           return 1;
+                clrscr(); getCustomerInfo(cst);           return 1;
             case 3:
-                switchCustomer(reg, index);     return 1;
+                clrscr(); switchCustomer(reg, index);     return 1;
             case 4:
-                createNewCustomer(reg, index);  return 1;
+                clrscr(); createNewCustomer(reg, index);  return 1;
             case 9:
-                // adminPanel(reg, map, index);    return 1;
-                return 0;
+                return 0;   // switch to adminPanel without looping
             case 0:
                 return -1;
             default:
@@ -640,14 +642,6 @@ int customerPanel(Registry& reg, Graph& map, int& index)
 void menu(Registry& registry, Graph& map)
 {
     string input1, input2, input3;
-    cout << "/--------------------------\\\n";
-    cout << "| EOOP Preliminary Project |\n";
-    cout << "|  Made by: Antoni Jesien  |\n";
-    cout << "|  336969 II sem. CompSci  |\n";
-    cout << "|    Topic: Taxi Agency    |\n";
-    cout << "\\--------------------------/\n";
-    p2c();
-    clrscr();
     int index = 0;
     int state = 0;
     while (true)

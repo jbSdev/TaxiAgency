@@ -5,8 +5,6 @@
 #include "classes.h"
 #include "func.h"
 #include "map.h"
-
-void clrscr();
-void menu(Registry& registry, Graph& map);
+#include "menu.h"
 
 #endif

@@ -4,12 +4,7 @@ unsigned short Customer::nextId = 1;
 
 Customer::Customer() : id(nextId++), total_expenses(0.0) {}
 
-void Customer::addTrip(const shared_ptr <Trip>& trip)
-{
-    cout << "Adding trip\n";
-    trip -> getInfo(); cout << endl;
-    history.push_back(trip);
-}
+void Customer::addTrip(const shared_ptr <Trip>& trip) { history.push_back(trip); }
 
 void Customer::updateExpenses(const float price) { total_expenses += price; }
 
@@ -29,14 +24,14 @@ void Customer::getInfo() const
     }
 }
 
-void Customer::requestRide(const char startingRegion, const char endingRegion, const Registry& registry, const Graph& graph, const string type)
+bool Customer::requestRide(const char startingRegion, const char endingRegion, const Registry& registry, const Graph& graph, const string type)
 {
     vsp <Driver> availableDrivers = findDrivers(startingRegion, endingRegion, registry, type);
 
     if (availableDrivers.size() == 0)
     {
         cout << "There are no drivers that are able to take this route.\n";
-        return;
+        return 0;
     }
 
     // Find the best path for each of the drivers
@@ -80,10 +75,5 @@ void Customer::requestRide(const char startingRegion, const char endingRegion, c
     }; input--;
     
     createTrip(startingRegion, endingRegion, bestDrives[input], weak_from_this(), type);
+    return 1;
 }
-
-void Customer::requestPremiumRide(const char startingRegion, const char endingRegion, const Registry& registry, const Graph& graph)
-{
-    requestRide(startingRegion, endingRegion, registry, graph, "premium");
-}
-

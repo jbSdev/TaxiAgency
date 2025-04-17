@@ -1,5 +1,36 @@
 #include "headers/main.h"
 
+void clrscr()
+{
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
+
+void p2c()  // press to continue
+{
+    cout << "Press any key to continue...\n" << std::flush;
+#ifdef _WIN32
+    _getch();
+#else
+    struct termios oldt, newt;
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    char ch;
+    read(STDIN_FILENO, &ch, 1);
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+#endif
+}
+
+void wait(const int ms)
+{
+    this_thread::sleep_for(chrono::milliseconds(ms));
+}
+
 template <typename Container, typename T> 
 bool isIn(const Container& arr, const T& val)
 {

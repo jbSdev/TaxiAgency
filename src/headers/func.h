@@ -36,4 +36,8 @@ void createTrip(const Region                start,
                 const weak_ptr <Customer>   customer,
                 const string                type);
 
+void clrscr();
+void p2c();
+void wait(const int ms);
+
 #endif

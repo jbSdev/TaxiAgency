@@ -1,5 +1,4 @@
 #include "headers/classes.h"
-#include <algorithm>
 
 Agency::Agency(char id, string type) : agencyType(type), id(id) {};
 
@@ -40,9 +39,17 @@ bool Agency::operatesInRegion(const char region) const
 
 void Agency::getInfo() const
 {
-    cout << "ID: "      << id       << endl;
-    cout << "Revenue: " << revenue  << endl;
-    cout << "Regions: "; for (auto reg : regions) cout << reg << ' '; cout << endl;
+    cout << "ID: "          << id           << endl;
+    cout << "Type: "        << agencyType   << endl;
+    cout << "Revenue: "     << revenue      << endl;
+    cout << "Starting fee " << starting_fee << endl;
+    cout << "Region fee "   << region_fee << endl;
+
+    cout << "Regions: ";
+    for (auto reg : regions)
+        cout << reg << ' ';
+    cout << endl;
+
     cout << "Drivers:\n";
     for (auto& dr : drivers)
         cout << dr -> getName() << endl;

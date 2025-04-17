@@ -76,6 +76,8 @@ void Driver::getInfo() const
 
 string Driver::getName() const { return name; }
 
+unsigned int Driver::getLicense() const { return license; }
+
 vwp <Agency> Driver::getAgencies() const { return agencies; }
 
 bool Driver::operatesInRegion(const Region region, const string type) const

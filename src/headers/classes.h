@@ -2,6 +2,7 @@
 #define CLASSES_H
 
 #include "includes.h"
+#include <cctype>
 
 class Agency;
 class Driver;
@@ -90,6 +91,7 @@ public:
     void         listRegions(string type)   const;
     void         listAgencies()             const;
     string       getName()                  const;
+    unsigned int getLicense()               const;
     vwp <Agency> getAgencies()              const;
     template <typename T>
     T            getBestStartingProp(const Region region, const string type) const;
@@ -115,10 +117,9 @@ public:
 
     void addTrip            (const shared_ptr <Trip>& trip);
     void updateExpenses     (const float price);
-    void requestRide        (const char startingRegion, const char endingRegion,
-                             const Registry& registry, const Graph& graph, const string type = "normal");
-    void requestPremiumRide (const char startingRegion, const char endingRegion,
-                             const Registry& registry, const Graph& graph);
+    bool requestRide        (const char startingRegion, const char endingRegion,
+                             const Registry& registry, const Graph& graph,
+                             const string type = "normal");
 
     void getInfo()  const;
     int  getId()    const ;
@@ -183,7 +184,7 @@ void Agency::setRegions(const Region (&arr)[N])
 {
     regions.clear();
     for (auto i : arr)
-        if (isalpha(i))
+        if (isalpha(i) && toupper(i) != 'Z')
             regions.push_back(toupper(i));
 
     sort(regions.begin(), regions.end());
