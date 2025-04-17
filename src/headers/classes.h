@@ -158,8 +158,8 @@ public:
 class Registry
 {
 private:
-    vsp <Agency> agencyList;
-    vsp <Customer> customerList;
+    vsp <Agency>    agencyList;
+    vsp <Customer>  customerList;
 
 public:
     Registry();

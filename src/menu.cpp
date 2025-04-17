@@ -515,6 +515,7 @@ void getRide(Registry& reg, shared_ptr <Customer>& cst, Graph& map)
         if (start < 'A' || start > 'Y')
             cout << "Incorrect input. Please try again: ";
     }
+    cout << "Where do you want to end the journey: ";
     while (end < 'A' || end > 'Y')
     {
         getVal(end);
